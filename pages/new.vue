@@ -1,9 +1,33 @@
-<script setup></script>
+<script setup>
+import { ref, computed } from 'vue';
+
+const trainerName = ref('');
+const valid = computed(() => trainerName.value.trim().length > 0);
+
+const onOpen = (value) => {
+  console.log('Button clicked with value:', value);
+  // ここにクリック時の処理を追加
+};
+</script>
 
 <template>
   <div>
     <h1>あたらしくはじめる</h1>
-    <form @submit.prevent></form>
+    <form @submit.prevent>
+      <div class="item">
+        <label for="name">なまえ</label>
+        <span id="name-description">XXX</span>
+        <input
+          id="name"
+          v-model="trainerName"
+          aria-describedby="name-description"
+          @keydown.enter="valid && onOpen(true)"
+        />
+      </div>
+      <GamifyButton type="button" :disabled="!valid" @click="onOpen(true)">
+        けってい
+      </GamifyButton>
+    </form>
   </div>
 </template>
 

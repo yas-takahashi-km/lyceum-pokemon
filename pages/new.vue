@@ -1,22 +1,36 @@
 <script setup>
-import { ref, computed } from 'vue';
-
-const trainerName = ref('');
-const valid = computed(() => trainerName.value.trim().length > 0);
-
-const onOpen = (value) => {
-  console.log('Button clicked with value:', value);
-  // ここにクリック時の処理を追加
+const router = useRouter();
+const config = useRuntimeConfig();
+const trainerName = ref("");
+const safeTrainerName = computed(() => trimAvoidCharacters(trainerName.value));
+const valid = computed(() => safeTrainerName.value.length > 0);
+const onSubmit = async () => {
+  const response = await $fetch("/api/trainer", {
+    baseURL: config.public.backendOrigin,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: safeTrainerName.value,
+    }),
+  }).catch((e) => e);
+  if (response instanceof Error) return;
+  router.push(`/trainer/${safeTrainerName.value}`);
 };
+const { dialog, onOpen, onClose } = useDialog();
 </script>
 
 <template>
   <div>
     <h1>あたらしくはじめる</h1>
+    <p>では　はじめに　きみの　なまえを　おしえて　もらおう！</p>
     <form @submit.prevent>
       <div class="item">
         <label for="name">なまえ</label>
-        <span id="name-description">XXX</span>
+        <span id="name-description"
+          >とくていの　もじは　とりのぞかれるぞ！</span
+        >
         <input
           id="name"
           v-model="trainerName"
@@ -24,10 +38,26 @@ const onOpen = (value) => {
           @keydown.enter="valid && onOpen(true)"
         />
       </div>
-      <GamifyButton type="button" :disabled="!valid" @click="onOpen(true)">
-        けってい
-      </GamifyButton>
+      <GamifyButton type="button" :disabled="!valid" @click="onOpen(true)"
+        >けってい</GamifyButton
+      >
     </form>
+    <GamifyDialog
+      v-if="dialog"
+      id="confirm-submit"
+      title="かくにん"
+      :description="`ふむ・・・　きみは　${safeTrainerName}　と　いうんだな！`"
+      @close="onClose"
+    >
+      <GamifyList :border="false" direction="horizon">
+        <GamifyItem>
+          <GamifyButton @click="onClose">いいえ</GamifyButton>
+        </GamifyItem>
+        <GamifyItem>
+          <GamifyButton @click="onSubmit">はい</GamifyButton>
+        </GamifyItem>
+      </GamifyList>
+    </GamifyDialog>
   </div>
 </template>
 

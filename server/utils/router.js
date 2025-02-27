@@ -4,6 +4,7 @@ import {
   findTrainer,
   upsertTrainer,
   deleteTrainer,
+  deleteAndCreate
 } from "~/server/utils/trainer";
 import { findPokemon } from "~/server/utils/pokemon";
 
@@ -101,6 +102,16 @@ router.post("/trainer/:trainerName/pokemon", async (req, res, next) => {
     next(err);
   }
 });
+
+router.delete("/trainer/:trainerName/pokemon", async (req, res, next) => {
+  try {
+    const result = await deleteAndCreate(req.params.trainerName);
+    res.status(result["$metadata"].httpStatusCode).send(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 /** ポケモンの削除 */
 router.delete(

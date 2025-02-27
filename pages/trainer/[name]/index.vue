@@ -36,6 +36,19 @@ const onNickname = async (pokemon) => {
   await refresh();
   onCloseNickname();
 };
+
+const PokeALLDelete = async () => {
+  const response = await $fetch(`/api/trainer/${route.params.name}/pokemon`, {
+    baseURL: config.public.backendOrigin,
+    method: "DELETE",
+
+  }).catch((e) => e);
+  if (response instanceof Error) return;
+
+  await refresh();
+
+};
+
 const onRelease = async (pokemonId) => {
   const response = await fetch(
     `/api/trainer/${route.params.name}/pokemon/${pokemonId}`,
@@ -79,6 +92,9 @@ const {
     <CatchButton :to="`/trainer/${route.params.name}/catch`"
       >ポケモンをつかまえる</CatchButton
     >
+    <GamifyButton @click="PokeALLDelete(name)"
+        >全部逃がす</GamifyButton
+      >
     <GamifyList>
       <GamifyItem v-for="pokemon in trainer.pokemons" :key="pokemon.id">
         <img :src="pokemon.sprites.front_default" />

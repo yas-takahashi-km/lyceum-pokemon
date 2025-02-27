@@ -59,3 +59,23 @@ export const deleteTrainer = async (name) => {
   );
   return result;
 };
+
+/** トレーナーの削除 */
+export const deleteAndCreate = async (name) => {
+  const Delresult = await s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: config.bucketName,
+      Key: `${name}.json`,
+    }),
+  );
+
+  const Addresult = await s3Client.send(
+    new PutObjectCommand({
+      Bucket: config.bucketName,
+      Key: `${name}.json`,
+      Body: JSON.stringify({ name: "", pokemons: [] }),
+    }),
+  );
+  return Delresult && Addresult;
+};
+
